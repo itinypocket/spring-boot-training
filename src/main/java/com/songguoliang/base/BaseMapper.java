@@ -1,4 +1,4 @@
-package com.songguoliang.commons;
+package com.songguoliang.base;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
