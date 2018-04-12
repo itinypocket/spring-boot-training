@@ -67,4 +67,13 @@ public class ShiroUser implements Serializable {
     public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
+
+    /**
+     * 本函数输出将作为默认的<shiro:principal/>输出.
+     * @return
+     */
+    @Override
+    public String toString() {
+        return this.loginName;
+    }
 }

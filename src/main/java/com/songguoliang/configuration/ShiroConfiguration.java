@@ -105,6 +105,7 @@ public class ShiroConfiguration {
         // anon代表匿名的不需要拦截的资源,authc:认证通过才可以访问
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/logout", "logout");
+        filterChainDefinitionMap.put("/captcha.jpg","anon");
         filterChainDefinitionMap.put("/commons/**", "anon");
         filterChainDefinitionMap.put("/static/**", "anon");
         filterChainDefinitionMap.put("/**", "authc");

@@ -1,6 +1,8 @@
 package com.songguoliang.base;
 
 import com.songguoliang.model.Result;
+import com.songguoliang.shiro.ShiroUser;
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,14 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BaseController {
     protected Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * 获取当前登录用户对象
+     * @return
+     */
+    public ShiroUser getShiroUser(){
+        return (ShiroUser) SecurityUtils.getSubject().getPrincipal();
+    }
 
     /**
      * ajax成功

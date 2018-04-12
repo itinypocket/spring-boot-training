@@ -43,7 +43,11 @@ public class Application {
         FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
         //2、添加fastjson的配置信息
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        //美化输出格式
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
+        //字段值为null的也输出
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
+
         //3、在convert中添加配置信息
         fastConverter.setFastJsonConfig(fastJsonConfig);
         //4、将convert添加到converters中

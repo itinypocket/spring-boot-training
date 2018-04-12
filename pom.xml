@@ -8,6 +8,7 @@
     <artifactId>spring-boot-training</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>spring-boot-training</name>
+    <packaging>war</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -85,14 +86,15 @@
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
-            <scope>provided</scope>
+            <!-- 如果不通过maven插件运行而是通过main方法运行，需要注释掉scope -->
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <!-- thymeleaf -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
+        </dependency>-->
 
 
         <dependency>
