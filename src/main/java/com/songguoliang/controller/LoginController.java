@@ -58,7 +58,7 @@ public class LoginController extends BaseController {
 
     @PostMapping("/login")
     @ResponseBody
-    public Object login(String username,String password){
+    public Object login(String username, String password) {
         logger.info("POST请求登录");
         if (StringUtils.isBlank(username)) {
             throw new RuntimeException("用户名不能为空");
@@ -67,7 +67,7 @@ public class LoginController extends BaseController {
             throw new RuntimeException("密码不能为空");
         }
         Subject user = SecurityUtils.getSubject();
-        UsernamePasswordToken token=new UsernamePasswordToken(username,password);
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         try {
             user.login(token);
             return renderSuccess();
@@ -81,6 +81,19 @@ public class LoginController extends BaseController {
             throw new RuntimeException(e.getMessage(), e);
         }
 
+    }
+
+    /**
+     * 未授权
+     *
+     * @return
+     */
+    @GetMapping("/unauth")
+    public String unauth() {
+        if (!SecurityUtils.getSubject().isAuthenticated()) {
+            return "redirect:/login";
+        }
+        return "unauth";
     }
 
 }

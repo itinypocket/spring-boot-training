@@ -5,6 +5,7 @@ import com.songguoliang.service.ResourceService;
 import com.songguoliang.shiro.ShiroUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,7 +20,7 @@ public class ResourceController extends BaseController {
     @Autowired
     private ResourceService resourceService;
 
-    @RequestMapping("/tree")
+    @PostMapping("/tree")
     @ResponseBody
     public Object tree() {
         ShiroUser shiroUser = getShiroUser();
