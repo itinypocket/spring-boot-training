@@ -1,5 +1,6 @@
 package com.songguoliang.entity;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
@@ -14,6 +15,7 @@ public class Resource implements Serializable {
     /**
      * 主键
      */
+    @Id
     private Long id;
 
     /**

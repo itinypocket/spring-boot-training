@@ -33,4 +33,32 @@ public abstract class BaseController {
         result.setSuccess(true);
         return result;
     }
+    /**
+     * ajax成功
+     * @param msg 消息
+     * @return {Object}
+     */
+    public Object renderSuccess(String msg) {
+        Result result = new Result();
+        result.setSuccess(true);
+        result.setMsg(msg);
+        return result;
+    }
+    /**
+     * 获取当前登录用户id
+     * @return {Long}
+     */
+    public Long getUserId() {
+        return this.getShiroUser().getId();
+    }
+    /**
+     * ajax失败
+     * @param msg 失败的消息
+     * @return {Object}
+     */
+    public Object renderError(String msg) {
+        Result result = new Result();
+        result.setMsg(msg);
+        return result;
+    }
 }

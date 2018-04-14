@@ -16,9 +16,17 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public User selectByLoginName(String loginName){
-        User user=new User();
+    public User selectByLoginName(String loginName) {
+        User user = new User();
         user.setLoginName(loginName);
         return userMapper.selectOne(user);
+    }
+
+    public User selectById(Long userId) {
+        return userMapper.selectByPrimaryKey(userId);
+    }
+
+    public void updatePwdByUserId(Long userId, String md5Hex) {
+        userMapper.updatePwdByUserId(userId, md5Hex);
     }
 }

@@ -1,5 +1,6 @@
 package com.songguoliang.entity;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
@@ -17,6 +18,7 @@ public class User implements Serializable {
     /**
      * 主键id
      */
+    @Id
     private Long id;
 
     /**
