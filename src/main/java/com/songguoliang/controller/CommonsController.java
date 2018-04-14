@@ -1,5 +1,7 @@
 package com.songguoliang.controller;
 
+import com.songguoliang.shiro.captcha.DreamCaptcha;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -13,8 +15,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Controller
 public class CommonsController {
-    @GetMapping("/captcha.jpg")
-    public void captcha(HttpServletRequest request, HttpServletResponse response){
+    @Autowired
+    private DreamCaptcha dreamCaptcha;
 
+    @GetMapping("/captcha.jpg")
+    public void captcha(HttpServletRequest request, HttpServletResponse response) {
+        dreamCaptcha.generate(request, response);
     }
 }

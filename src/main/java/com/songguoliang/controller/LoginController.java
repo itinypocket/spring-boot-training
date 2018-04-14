@@ -1,6 +1,7 @@
 package com.songguoliang.controller;
 
 import com.songguoliang.base.BaseController;
+import com.songguoliang.shiro.captcha.DreamCaptcha;
 import com.songguoliang.util.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.DisabledAccountException;
@@ -8,11 +9,15 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @Author sgl
@@ -20,7 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class LoginController extends BaseController {
-
+    @Autowired
+    private DreamCaptcha dreamCaptcha;
     /**
      * 首页
      *
@@ -58,13 +64,19 @@ public class LoginController extends BaseController {
 
     @PostMapping("/login")
     @ResponseBody
-    public Object login(String username, String password) {
+    public Object login(HttpServletRequest request, HttpServletResponse response, String username, String password, String captcha) {
         logger.info("POST请求登录");
         if (StringUtils.isBlank(username)) {
             throw new RuntimeException("用户名不能为空");
         }
         if (StringUtils.isBlank(password)) {
             throw new RuntimeException("密码不能为空");
+        }
+        if (StringUtils.isBlank(captcha)) {
+            throw new RuntimeException("验证码不能为空");
+        }
+        if (!dreamCaptcha.validate(request, response, captcha)) {
+            throw new RuntimeException("验证码错误");
         }
         Subject user = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username, password);
@@ -94,6 +106,15 @@ public class LoginController extends BaseController {
             return "redirect:/login";
         }
         return "unauth";
+    }
+
+    @PostMapping("/logout")
+    @ResponseBody
+    public Object logout() {
+        logger.info("登出");
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+        return renderSuccess();
     }
 
 }

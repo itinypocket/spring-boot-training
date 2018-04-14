@@ -1,5 +1,7 @@
 package com.songguoliang.util;
 
+import java.util.UUID;
+
 /**
  * @Description
  * @Author sgl
@@ -12,5 +14,14 @@ public class StringUtils extends org.springframework.util.StringUtils {
 
     public static boolean isBlank(final CharSequence cs) {
         return !hasText(cs);
+    }
+
+    /**
+     * 生成uuid
+     *
+     * @return
+     */
+    public static String getUUId() {
+        return UUID.randomUUID().toString();
     }
 }

@@ -2,6 +2,7 @@ package com.songguoliang.configuration;
 
 import com.songguoliang.shiro.UserRealm;
 import com.songguoliang.shiro.cache.ShiroSpringCacheManager;
+import com.songguoliang.shiro.captcha.DreamCaptcha;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -27,6 +28,19 @@ import java.util.Map;
 @Configuration
 public class ShiroConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShiroConfiguration.class);
+
+    /**
+     * 验证码
+     *
+     * @param shiroSpringCacheManager
+     * @return
+     */
+    @Bean
+    public DreamCaptcha dreamCaptcha(ShiroSpringCacheManager shiroSpringCacheManager) {
+        DreamCaptcha dreamCaptcha = new DreamCaptcha(shiroSpringCacheManager);
+        dreamCaptcha.setCacheName("halfHour");
+        return dreamCaptcha;
+    }
 
     /**
      * Shiro生命周期处理器
@@ -73,7 +87,7 @@ public class ShiroConfiguration {
      */
     @Bean
     public UserRealm userRealm(ShiroSpringCacheManager shiroSpringCacheManager) {
-        UserRealm userRealm = new UserRealm(shiroSpringCacheManager,hashedCredentialsMatcher());
+        UserRealm userRealm = new UserRealm(shiroSpringCacheManager, hashedCredentialsMatcher());
         //启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
         userRealm.setAuthenticationCachingEnabled(true);
         userRealm.setAuthenticationCacheName("authenticationCache");
@@ -142,11 +156,10 @@ public class ShiroConfiguration {
         // 过滤器链，拦截的顺序是按照配置的顺序来的
         // anon代表匿名的不需要拦截的资源,authc:认证通过才可以访问
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
-        //filterChainDefinitionMap.put("/logout", "anon");
         filterChainDefinitionMap.put("/captcha.jpg", "anon");
         filterChainDefinitionMap.put("/commons/**", "anon");
         filterChainDefinitionMap.put("/static/**", "anon");
-        filterChainDefinitionMap.put("/login","anon");
+        filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/**", "authc");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
