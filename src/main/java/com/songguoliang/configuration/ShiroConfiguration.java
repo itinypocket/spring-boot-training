@@ -1,14 +1,17 @@
 package com.songguoliang.configuration;
 
+import com.songguoliang.shiro.RetryLimitCredentialsMatcher;
 import com.songguoliang.shiro.UserRealm;
 import com.songguoliang.shiro.cache.ShiroSpringCacheManager;
 import com.songguoliang.shiro.captcha.DreamCaptcha;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -53,18 +56,19 @@ public class ShiroConfiguration {
     }
 
     /**
-     * 凭证匹配器
+     * 凭证匹配器,密码错误5次锁定半小时
      *
      * @return
      */
     @Bean
-    public HashedCredentialsMatcher hashedCredentialsMatcher() {
-        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+    public RetryLimitCredentialsMatcher credentialsMatcher(ShiroSpringCacheManager shiroSpringCacheManager) {
+        RetryLimitCredentialsMatcher credentialsMatcher = new RetryLimitCredentialsMatcher(shiroSpringCacheManager);
+        credentialsMatcher.setRetryLimitCacheName("halfHour");
         //md5算法
-        hashedCredentialsMatcher.setHashAlgorithmName("md5");
+        credentialsMatcher.setHashAlgorithmName("md5");
         //加密次数
-        hashedCredentialsMatcher.setHashIterations(1);
-        return hashedCredentialsMatcher;
+        credentialsMatcher.setHashIterations(1);
+        return credentialsMatcher;
     }
 
     /**
@@ -86,11 +90,13 @@ public class ShiroConfiguration {
      * @return
      */
     @Bean
-    public UserRealm userRealm(ShiroSpringCacheManager shiroSpringCacheManager) {
-        UserRealm userRealm = new UserRealm(shiroSpringCacheManager, hashedCredentialsMatcher());
+    public UserRealm userRealm(ShiroSpringCacheManager shiroSpringCacheManager, RetryLimitCredentialsMatcher credentialsMatcher) {
+        UserRealm userRealm = new UserRealm(shiroSpringCacheManager, credentialsMatcher);
         //启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
         userRealm.setAuthenticationCachingEnabled(true);
+        //缓存AuthenticationInfo信息的缓存名称
         userRealm.setAuthenticationCacheName("authenticationCache");
+        //缓存AuthorizationInfo信息的缓存名称
         userRealm.setAuthorizationCacheName("authorizationCache");
         return userRealm;
     }
@@ -104,8 +110,12 @@ public class ShiroConfiguration {
     @Bean
     public DefaultWebSecurityManager securityManager(UserRealm userRealm, ShiroSpringCacheManager shiroSpringCacheManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        //设置自定义Realm
         securityManager.setRealm(userRealm);
+        //将缓存管理器，交给安全管理器
         securityManager.setCacheManager(shiroSpringCacheManager);
+        //记住密码管理器
+        securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
     }
 
@@ -154,16 +164,43 @@ public class ShiroConfiguration {
         shiroFilterFactoryBean.setUnauthorizedUrl("/unauth");
 
         // 过滤器链，拦截的顺序是按照配置的顺序来的
-        // anon代表匿名的不需要拦截的资源,authc:认证通过才可以访问
+        // anon代表匿名的不需要拦截的资源,authc:认证通过才可以访问,user 认证通过和RememberMe登录都可以
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/captcha.jpg", "anon");
         filterChainDefinitionMap.put("/commons/**", "anon");
         filterChainDefinitionMap.put("/static/**", "anon");
         filterChainDefinitionMap.put("/login", "anon");
-        filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "user");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
 
+    /**
+     * 记住密码Cookie
+     *
+     * @return
+     */
+    @Bean
+    public SimpleCookie rememberMeCookie() {
+        //这个参数是cookie的名称，对应前端的checkbox的name = rememberMe
+        SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
+        simpleCookie.setHttpOnly(true);
+        //7天
+        simpleCookie.setMaxAge(7 * 24 * 60 * 60);
+        return simpleCookie;
+    }
+
+    /**
+     * rememberMe管理器
+     *
+     * @return
+     */
+    @Bean
+    public CookieRememberMeManager rememberMeManager() {
+        CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+        rememberMeManager.setCookie(rememberMeCookie());
+        rememberMeManager.setCipherKey(Base64.decode("5aaC5qKm5oqA5pyvAAAAAA=="));
+        return rememberMeManager;
+    }
 }
